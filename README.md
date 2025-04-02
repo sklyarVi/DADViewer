@@ -37,7 +37,8 @@ This application reads DAD data from a specific binary file format and provides 
 ## Getting Started
 
 1. Clone the repository.
-2. Open the solution in Visual Studio.
-3. Build the solution to restore NuGet packages.
-4. Run the application.
-5. Use the "Load Data" command to open a DAD file and interact with the various visualizations.
+2. Download .Net 9 SDK - https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+3. Open the solution in Visual Studio.
+4. Build the solution to restore NuGet packages. (build restore)
+5. Run the application. (dotnet build / dotnet run)
+6. Use the "Load Data" command to open a DAD file and interact with the various visualizations.
