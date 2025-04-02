@@ -50,12 +50,12 @@ public partial class DAD3DView : UserControl
             }
         }
 
-        // Obliczenie środka sceny
+        // Calculation of the centre of the scene
         double centerX = ((minWave + maxWave) / 2) * xScale;
         double centerY = ((minTime + maxTime) / 2) * yScale;
         double centerZ = ((minIntensity + maxIntensity) / 2) * zScale;
         
-        // We create a surface grid based on the intensity data.
+        // Create a surface grid based on the intensity data.
         // In this example: axis X = wavelength index, Y = spectral index, Z = intensity
         for (int i = 0; i < nSpect - 1; i++)
         {
@@ -92,7 +92,7 @@ public partial class DAD3DView : UserControl
         HelixViewport.Children.Add(new DefaultLights());
         HelixViewport.Children.Add(new ModelVisual3D { Content = model });
             
-        // Ustawienie kamery – wyznaczamy pozycję kamery na podstawie środka sceny
+        // Camera positioning - we determine the camera position from the centre of the scene
         HelixViewport.Camera = new PerspectiveCamera
         {
             Position = new Point3D(centerX, centerY - 100, centerZ + 100),
@@ -101,7 +101,7 @@ public partial class DAD3DView : UserControl
             FieldOfView = 60
         };
             
-        // Automatycznie dopasowuje widok do zawartości sceny
+        // Automatically adjusts the view to the scene content
         HelixViewport.ZoomExtents();
     }
 

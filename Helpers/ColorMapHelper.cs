@@ -7,7 +7,7 @@ public class ColorMapHelper
 {
     public static Color GetColor(double normalizedValue, int steps, string colorScheme)
     {
-        // Example of a method that generates a color based on the value (0-1), assuming that 0 = blue, 1 = red
+        // method that generates a color based on the value (0-1), assuming that 0 = blue, 1 = red
         normalizedValue = Math.Min(1, Math.Max(0, normalizedValue));
         switch (colorScheme)
             {

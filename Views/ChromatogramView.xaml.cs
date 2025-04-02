@@ -25,10 +25,10 @@ namespace DADViewer.Views
         }
 
         /// <summary>
-        /// Renderuje chromatogram dla podanego zestawu danych i wybranego indeksu długości fali.
+        /// Renders a chromatogram for the given data set and selected wavelength index.
         /// </summary>
-        /// <param name="data">Dane DAD</param>
-        /// <param name="wavelengthIndex">Indeks długości fali</param>
+        /// <param name="data">DAD data</param>
+        /// <param name="wavelengthIndex">Wavelength index</param>
         /// <param name="selectedTimeIndex"></param>
         public void RenderChromatogram(DADData data, int wavelengthIndex, int selectedTimeIndex)
         {
@@ -46,7 +46,7 @@ namespace DADViewer.Views
         }
 
         /// <summary>
-        /// Przerysowuje wykres chromatogramu na podstawie aktualnych danych i wybranego indeksu.
+        ///  Redraws the chromatogram plot based on the current data and the selected index.
         /// </summary>
         private void RedrawPlot()
         {
@@ -72,17 +72,17 @@ namespace DADViewer.Views
             double intensityRange = maxIntensity - minIntensity;
             if (intensityRange == 0) intensityRange = 1;
 
-            // Pobierz wymiary Canvas
+            // Download Canvas dimensions
             double canvasWidth = CanvasPlot.ActualWidth;
             double canvasHeight = CanvasPlot.ActualHeight;
             if (canvasWidth == 0 || canvasHeight == 0)
             {
-                // Jeśli ActualWidth/Height nie są dostępne, użyj wymiarów kontrolki
+                // If ActualWidth/Height are not available, use the dimensions of the control
                 canvasWidth = this.Width;
                 canvasHeight = this.Height;
             }
 
-            // Utwórz Polyline przedstawiający wykres chromatogramu
+            // Create a Polyline graph of the chromatogram
             _polyline = new Polyline
             {
                 Stroke = Brushes.Blue,
@@ -95,15 +95,15 @@ namespace DADViewer.Views
                 double t = currentDADData.TimeStamps[i];
                 double intensity = intensities[i];
 
-                // Mapowanie wartości czasu na współrzędną X
+                // Mapping time values to the X coordinate
                 double x = ((t - minTime) / timeRange) * canvasWidth;
-                // Mapowanie intensywności na współrzędną Y (odwrócone, bo y=0 na górze)
+                // Mapping of intensity to the Y coordinate (inverted because y=0 at the top)
                 double y = canvasHeight - (((intensity - minIntensity) / intensityRange) * canvasHeight);
                 _polyline.Points.Add(new Point(x, y));
             }
             CanvasPlot.Children.Add(_polyline);
 
-            // Rysowanie osi: oś X i oś Y
+            //  Drawing axes: X axis and Y axis
             var xAxis = new Line
             {
                 Stroke = Brushes.Black,
@@ -139,8 +139,8 @@ namespace DADViewer.Views
             DrawGrid(canvasWidth, canvasHeight, 5, 5, minTime, maxTime, minIntensity, maxIntensity);
 
             
-            // Dodaj marker – przykładowo ustawiony na środkowy punkt wykresu
-            int selectedIndex = currentSelectedTimeIndex; // Możesz zastąpić tym indeksem wybranym przez użytkownika
+            // Add marker - for example set to the middle point of the chart
+            int selectedIndex = currentSelectedTimeIndex;
             double selectedTime = currentDADData.TimeStamps[selectedIndex];
             double selectedIntensity = currentDADData.Intensities[selectedIndex, currentWavelengthIndex];
 
@@ -150,10 +150,10 @@ namespace DADViewer.Views
         }
 
         /// <summary>
-        /// Dodaje lub aktualizuje marker (czerwoną elipsę) w określonym punkcie wykresu.
+        /// Adds or updates a marker (red ellipse) at a specific point on the graph.
         /// </summary>
-        /// <param name="x">Współrzędna X na Canvas</param>
-        /// <param name="y">Współrzędna Y na Canvas</param>
+        /// <param name="x">X coordinate on Canvas</param>
+        /// <param name="y">Y coordinate on Canvas</param>
         private void ShowMarker(double x, double y)
         {
             if (_marker != null)
@@ -168,7 +168,7 @@ namespace DADViewer.Views
                 StrokeThickness = 2,
                 Fill = Brushes.Transparent
             };
-            // Centruj marker względem punktu (x, y)
+            // Centre the marker relative to a point (x, y)
             Canvas.SetLeft(_marker, x - _marker.Width / 2);
             Canvas.SetTop(_marker, y - _marker.Height / 2);
             CanvasPlot.Children.Add(_marker);
@@ -176,7 +176,7 @@ namespace DADViewer.Views
         
         private void DrawGrid(double canvasWidth, double canvasHeight, int numVerticalLines, int numHorizontalLines, double minTime, double maxTime, double minIntensity, double maxIntensity)
         {
-            // Pionowe linie (dla osi czasu)
+            // Vertical lines (for timeline)
             for (int i = 1; i < numVerticalLines; i++)
             {
                 double x = i * canvasWidth / numVerticalLines;
@@ -191,7 +191,7 @@ namespace DADViewer.Views
                 };
                 CanvasPlot.Children.Add(line);
             }
-            // Poziome linie (dla intensywności)
+            // Horizontal lines (for intensity)
             for (int i = 1; i < numHorizontalLines; i++)
             {
                 double y = i * canvasHeight / numHorizontalLines;
