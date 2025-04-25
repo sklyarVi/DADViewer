@@ -1,6 +1,6 @@
 # DADViewer
 
-DADViewer is a Windows application developed using C# and WPF, designed for visualizing 2D data obtained from a Diode Array Detector (DAD). The project aims to replicate and enhance functionalities described in the initial task specification (`Task.docx`).
+DADViewer is a Windows application developed using C# and WPF, designed for visualizing 2D data obtained from a Diode Array Detector (DAD).
 
 ## Overview
 
