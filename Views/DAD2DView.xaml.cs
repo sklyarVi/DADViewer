@@ -15,6 +15,8 @@ public partial class DAD2DView : UserControl
     private const int DefaultMax2DPixels = 2_000_000;
     private const double MinZoom = 1.0;
     private const double MaxZoom = 5.0;
+    private const int VerticalGridDivisions = 8;
+    private const int HorizontalGridDivisions = 8;
 
     private DADData? currentDadData;
     private Ellipse? currentMarker;
@@ -122,6 +124,7 @@ public partial class DAD2DView : UserControl
         bitmap.WritePixels(new Int32Rect(0, 0, width, height), pixels, width * 4, 0);
         ImageDisplay.Source = bitmap;
         UpdateZoomTransformCenter();
+        DrawGridOverlay();
 
         if (currentMarkerRow >= 0 && currentMarkerColumn >= 0)
         {
@@ -357,6 +360,125 @@ public partial class DAD2DView : UserControl
 
         scaleTransform.CenterX = centerX;
         scaleTransform.CenterY = centerY;
+    }
+
+    private void DrawGridOverlay()
+    {
+        GridCanvas.Children.Clear();
+
+        if (currentDadData == null || ImageDisplay.Source == null)
+        {
+            return;
+        }
+
+        double width = ImageDisplay.ActualWidth;
+        double height = ImageDisplay.ActualHeight;
+        if (width < 20 || height < 20)
+        {
+            return;
+        }
+
+        var border = new Rectangle
+        {
+            Width = width,
+            Height = height,
+            Stroke = new SolidColorBrush(Color.FromArgb(220, 85, 99, 120)),
+            StrokeThickness = 1
+        };
+        Canvas.SetLeft(border, 0);
+        Canvas.SetTop(border, 0);
+        GridCanvas.Children.Add(border);
+
+        DrawVerticalGrid(width, height);
+        DrawHorizontalGrid(width, height);
+        DrawAxisTitles(width, height);
+    }
+
+    private void DrawVerticalGrid(double width, double height)
+    {
+        int tickCount = Math.Max(2, VerticalGridDivisions);
+        for (int tick = 0; tick <= tickCount; tick++)
+        {
+            double x = tick * width / tickCount;
+
+            var line = new Line
+            {
+                X1 = x,
+                Y1 = 0,
+                X2 = x,
+                Y2 = height,
+                Stroke = new SolidColorBrush(Color.FromArgb(65, 80, 95, 122)),
+                StrokeThickness = 1
+            };
+            GridCanvas.Children.Add(line);
+
+            int renderedIndex = Math.Clamp((int)Math.Round((double)tick / tickCount * (renderedColumnIndices.Length - 1)), 0, renderedColumnIndices.Length - 1);
+            int sourceColumn = renderedColumnIndices[renderedIndex];
+            double wave = currentDadData!.Wavelengths[sourceColumn];
+            AddOverlayLabel($"{wave:F0}", x + 2, height - 18);
+        }
+    }
+
+    private void DrawHorizontalGrid(double width, double height)
+    {
+        int tickCount = Math.Max(2, HorizontalGridDivisions);
+        for (int tick = 0; tick <= tickCount; tick++)
+        {
+            double y = tick * height / tickCount;
+
+            var line = new Line
+            {
+                X1 = 0,
+                Y1 = y,
+                X2 = width,
+                Y2 = y,
+                Stroke = new SolidColorBrush(Color.FromArgb(65, 80, 95, 122)),
+                StrokeThickness = 1
+            };
+            GridCanvas.Children.Add(line);
+
+            int renderedIndex = Math.Clamp((int)Math.Round((double)tick / tickCount * (renderedRowIndices.Length - 1)), 0, renderedRowIndices.Length - 1);
+            int sourceRow = renderedRowIndices[renderedIndex];
+            double time = currentDadData!.TimeStamps[sourceRow];
+            AddOverlayLabel($"{time:F2}", 2, y - 10);
+        }
+    }
+
+    private void DrawAxisTitles(double width, double height)
+    {
+        AddOverlayLabel("Wavelength (nm)", width / 2 - 46, height - 34, fontSize: 11, bold: true);
+
+        var timeLabel = new TextBlock
+        {
+            Text = "Time",
+            FontSize = 11,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = new SolidColorBrush(Color.FromRgb(41, 52, 69)),
+            Background = new SolidColorBrush(Color.FromArgb(180, 250, 253, 255)),
+            Padding = new Thickness(3, 1, 3, 1),
+            RenderTransform = new RotateTransform(-90)
+        };
+
+        Canvas.SetLeft(timeLabel, 2);
+        Canvas.SetTop(timeLabel, height / 2 + 20);
+        GridCanvas.Children.Add(timeLabel);
+    }
+
+    private void AddOverlayLabel(string text, double x, double y, double fontSize = 10, bool bold = false)
+    {
+        var label = new TextBlock
+        {
+            Text = text,
+            FontSize = fontSize,
+            FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal,
+            Foreground = new SolidColorBrush(Color.FromRgb(41, 52, 69)),
+            Background = new SolidColorBrush(Color.FromArgb(175, 250, 253, 255)),
+            Padding = new Thickness(2, 0, 2, 0)
+        };
+
+        Canvas.SetLeft(label, Math.Max(0, x));
+        Canvas.SetTop(label, Math.Max(0, y));
+        GridCanvas.Children.Add(label);
     }
 
     private static int[] BuildSampleIndexArray(int sourceLength, int renderedLength)

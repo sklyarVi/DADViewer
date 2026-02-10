@@ -16,16 +16,20 @@ This application reads DAD data from a specific binary file format and provides 
         * User can specify the number of colors in the scale.
         * Colors within the scale can be easily modified.
         * Color scale steps can be set manually by the user or determined automatically based on the data range (e.g., (Max Signal - Min Signal) / Number of Colors).
+    * **Axes and Grid:** 2D map includes wavelength/time axis guides and tick labels for easier interpretation.
 * **Chromatogram View:** Extracts and displays a chromatogram (Intensity vs. Time) for a specific wavelength. Allows interactive scrolling through wavelengths to update the chromatogram view.
 * **Spectrum View:** Extracts and displays a spectrum (Intensity vs. Wavelength) for a specific time point.
 * **Interactive Exploration:** Allows users to select points or slices within the data maps to view corresponding chromatograms and spectra.
 * **Linked Selection/Crosshair:** Selecting a point in 2D, chromatogram, or spectrum synchronizes all views to the same `(time, wavelength)` location.
+* **Auto Peak Detection:** Detects chromatogram peaks for the selected wavelength and lists them in a table for quick navigation.
 * **Export Tools:**
     * Export current 2D map as PNG.
     * Export current chromatogram as CSV.
     * Export current spectrum as CSV.
 * **Dynamic Color Legend:** Color scale legend updates automatically when color scheme/steps change and displays actual min/max intensity.
 * **Performance Decimation:** 2D and 3D rendering automatically downsample very large datasets for smoother interaction.
+* **3D Axes and Floor Grid:** 3D view includes axis guides and base grid to improve spatial orientation.
+* **Profile-based DAD Parsing:** Supports multiple binary layouts via parser profiles with automatic format detection.
   
 ![image](https://github.com/user-attachments/assets/d492e787-efdc-4667-8c43-10f918bd2fce)
 

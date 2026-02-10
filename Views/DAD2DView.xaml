@@ -11,6 +11,7 @@
                    Stretch="Fill"
                    MouseLeftButtonUp="ImageDisplay_MouseLeftButtonUp"
                    MouseMove="ImageDisplay_MouseMove" />
+            <Canvas x:Name="GridCanvas" IsHitTestVisible="False"/>
             <Canvas x:Name="MarkerCanvas" IsHitTestVisible="False"/>
         </Grid>
     </Grid>

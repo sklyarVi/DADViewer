@@ -16,6 +16,7 @@ public class DADDataTests
 
         Assert.Equal(106, data.NWaves);
         Assert.Equal(4869, data.NSpect);
+        Assert.Equal(DADFileProfile.StandardDoubleIntensity, data.FileProfile);
         Assert.Equal(data.NSpect, data.TimeStamps.Length);
         Assert.Equal(data.NWaves, data.Wavelengths.Length);
         Assert.Equal(data.NSpect, data.Intensities.GetLength(0));
@@ -85,25 +86,17 @@ public class DADDataTests
     }
 
     [Fact]
-    public void LoadFromFile_SyntheticData_RoundTripsExpectedValues()
+    public void LoadFromFile_SyntheticDoubleData_RoundTripsExpectedValues()
     {
         string file = Path.GetTempFileName();
         try
         {
-            WriteSyntheticDAD(file);
+            WriteSyntheticDAD(file, reversedHeader: false, floatIntensity: false);
 
             DADData data = DADData.LoadFromFile(file);
 
-            Assert.Equal(3, data.NWaves);
-            Assert.Equal(2, data.NSpect);
-            Assert.Equal(new double[] { 1.5, 2.5 }, data.TimeStamps);
-            Assert.Equal(new float[] { 210f, 220f, 230f }, data.Wavelengths);
-            Assert.Equal(11, data.Intensities[0, 0]);
-            Assert.Equal(12, data.Intensities[0, 1]);
-            Assert.Equal(13, data.Intensities[0, 2]);
-            Assert.Equal(21, data.Intensities[1, 0]);
-            Assert.Equal(22, data.Intensities[1, 1]);
-            Assert.Equal(23, data.Intensities[1, 2]);
+            Assert.Equal(DADFileProfile.StandardDoubleIntensity, data.FileProfile);
+            AssertSyntheticValues(data);
         }
         finally
         {
@@ -111,12 +104,75 @@ public class DADDataTests
         }
     }
 
-    private static void WriteSyntheticDAD(string path)
+    [Fact]
+    public void LoadFromFile_SyntheticFloatIntensity_AutoDetectsAndParses()
     {
+        string file = Path.GetTempFileName();
+        try
+        {
+            WriteSyntheticDAD(file, reversedHeader: false, floatIntensity: true);
+
+            DADData data = DADData.LoadFromFile(file);
+
+            Assert.Equal(DADFileProfile.StandardFloatIntensity, data.FileProfile);
+            AssertSyntheticValues(data);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    [Fact]
+    public void LoadFromFile_SyntheticReversedHeader_AutoDetectsAndParses()
+    {
+        string file = Path.GetTempFileName();
+        try
+        {
+            WriteSyntheticDAD(file, reversedHeader: true, floatIntensity: false);
+
+            DADData data = DADData.LoadFromFile(file);
+
+            Assert.Equal(DADFileProfile.ReversedHeaderDoubleIntensity, data.FileProfile);
+            AssertSyntheticValues(data);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    private static void AssertSyntheticValues(DADData data)
+    {
+        Assert.Equal(3, data.NWaves);
+        Assert.Equal(2, data.NSpect);
+        Assert.Equal(new double[] { 1.5, 2.5 }, data.TimeStamps);
+        Assert.Equal(new float[] { 210f, 220f, 230f }, data.Wavelengths);
+        Assert.Equal(11, data.Intensities[0, 0], 4);
+        Assert.Equal(12, data.Intensities[0, 1], 4);
+        Assert.Equal(13, data.Intensities[0, 2], 4);
+        Assert.Equal(21, data.Intensities[1, 0], 4);
+        Assert.Equal(22, data.Intensities[1, 1], 4);
+        Assert.Equal(23, data.Intensities[1, 2], 4);
+    }
+
+    private static void WriteSyntheticDAD(string path, bool reversedHeader, bool floatIntensity)
+    {
+        const int nWaves = 3;
+        const int nSpect = 2;
+
         using var writer = new BinaryWriter(File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None));
 
-        writer.Write(3);
-        writer.Write(2);
+        if (reversedHeader)
+        {
+            writer.Write(nSpect);
+            writer.Write(nWaves);
+        }
+        else
+        {
+            writer.Write(nWaves);
+            writer.Write(nSpect);
+        }
 
         writer.Write(1.5);
         writer.Write(2.5);
@@ -125,12 +181,24 @@ public class DADDataTests
         writer.Write(220f);
         writer.Write(230f);
 
-        writer.Write(11d);
-        writer.Write(12d);
-        writer.Write(13d);
-        writer.Write(21d);
-        writer.Write(22d);
-        writer.Write(23d);
+        WriteIntensity(writer, 11, floatIntensity);
+        WriteIntensity(writer, 12, floatIntensity);
+        WriteIntensity(writer, 13, floatIntensity);
+        WriteIntensity(writer, 21, floatIntensity);
+        WriteIntensity(writer, 22, floatIntensity);
+        WriteIntensity(writer, 23, floatIntensity);
+    }
+
+    private static void WriteIntensity(BinaryWriter writer, double value, bool floatIntensity)
+    {
+        if (floatIntensity)
+        {
+            writer.Write((float)value);
+        }
+        else
+        {
+            writer.Write(value);
+        }
     }
 
     private static string GetRepositoryRoot()

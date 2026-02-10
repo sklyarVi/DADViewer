@@ -170,47 +170,11 @@
                     Padding="14"
                     Margin="0,0,0,14">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="Open DAD" Click="OpenFileButton_Click"/>
                         <Button Content="Export 2D PNG" Click="Export2DImage_Click"/>
                         <Button Content="Export Chrom CSV" Click="ExportChromatogramCsv_Click"/>
                         <Button Content="Export Spectrum CSV" Click="ExportSpectrumCsv_Click"/>
-                    </StackPanel>
-
-                    <StackPanel x:Name="SettingsPanel"
-                                Grid.Column="1"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center">
-                        <TextBlock Text="Colors"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"
-                                   Foreground="{StaticResource TextSubBrush}"/>
-                        <Slider x:Name="ColorStepsSlider"
-                                Minimum="2"
-                                Maximum="64"
-                                Value="16"
-                                Width="150"
-                                ValueChanged="ColorStepsSlider_ValueChanged"
-                                VerticalAlignment="Center"/>
-                        <TextBlock Text="Palette"
-                                   VerticalAlignment="Center"
-                                   Margin="14,0,8,0"
-                                   Foreground="{StaticResource TextSubBrush}"/>
-                        <ComboBox x:Name="ColorSchemeComboBox"
-                                  SelectionChanged="ColorSchemeComboBox_SelectionChanged"
-                                  Width="150"
-                                  VerticalAlignment="Center">
-                            <ComboBoxItem Content="Blue-Red" IsSelected="True"/>
-                            <ComboBoxItem Content="Viridis"/>
-                            <ComboBoxItem Content="Jet"/>
-                            <ComboBoxItem Content="Hot"/>
-                        </ComboBox>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -225,8 +189,8 @@
                     <TabItem Header="2D Analysis">
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="4*"/>
-                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="3.7*"/>
+                                <ColumnDefinition Width="1.5*"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid Grid.Column="0">
@@ -259,20 +223,58 @@
                                                 HorizontalAlignment="Center">
                                         <TextBlock Text="Wavelength index"
                                                    VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"
+                                                   Margin="0,0,10,0"
                                                    Foreground="{StaticResource TextSubBrush}"/>
-                                        <Slider x:Name="WavelengthSlider"
-                                                Minimum="0"
-                                                Maximum="105"
-                                                Value="50"
-                                                Width="280"
-                                                ValueChanged="WavelengthSlider_ValueChanged"
-                                                VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="WavelengthValueText"
-                                                   Text="50"
+                                        <Button x:Name="WavelengthDecrease10Button"
+                                                Content="-10"
+                                                Width="40"
+                                                Padding="0"
+                                                Margin="0,0,6,0"
+                                                Click="WavelengthDecrease10Button_Click"/>
+                                        <Button x:Name="WavelengthDecrease5Button"
+                                                Content="-5"
+                                                Width="34"
+                                                Padding="0"
+                                                Margin="0,0,6,0"
+                                                Click="WavelengthDecrease5Button_Click"/>
+                                        <Button x:Name="WavelengthDecreaseButton"
+                                                Content="-"
+                                                Width="30"
+                                                Padding="0"
+                                                Margin="0,0,6,0"
+                                                Click="WavelengthDecreaseButton_Click"/>
+                                        <TextBox x:Name="WavelengthIndexTextBox"
+                                                 Width="76"
+                                                 VerticalContentAlignment="Center"
+                                                 HorizontalContentAlignment="Center"
+                                                 Margin="0,0,6,0"
+                                                 PreviewTextInput="WavelengthIndexTextBox_PreviewTextInput"
+                                                 DataObject.Pasting="WavelengthIndexTextBox_Pasting"
+                                                 LostFocus="WavelengthIndexTextBox_LostFocus"
+                                                 KeyDown="WavelengthIndexTextBox_KeyDown"/>
+                                        <Button x:Name="WavelengthIncreaseButton"
+                                                Content="+"
+                                                Width="30"
+                                                Padding="0"
+                                                Margin="0,0,8,0"
+                                                Click="WavelengthIncreaseButton_Click"/>
+                                        <Button x:Name="WavelengthIncrease5Button"
+                                                Content="+5"
+                                                Width="34"
+                                                Padding="0"
+                                                Margin="0,0,6,0"
+                                                Click="WavelengthIncrease5Button_Click"/>
+                                        <Button x:Name="WavelengthIncrease10Button"
+                                                Content="+10"
+                                                Width="40"
+                                                Padding="0"
+                                                Margin="0,0,8,0"
+                                                Click="WavelengthIncrease10Button_Click"/>
+                                        <TextBlock x:Name="WavelengthRangeText"
+                                                   Text="/ 0"
                                                    VerticalAlignment="Center"
-                                                   Margin="8,0,0,0"
-                                                   FontWeight="SemiBold"/>
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextSubBrush}"/>
                                     </StackPanel>
                                 </Border>
 
@@ -302,44 +304,123 @@
                                     BorderBrush="{StaticResource BorderBrushSoft}"
                                     BorderThickness="1"
                                     CornerRadius="12"
-                                    Padding="12">
-                                <StackPanel>
-                                    <TextBlock Text="Color Scale"
-                                               FontWeight="SemiBold"
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock x:Name="LegendMaxValueText"
-                                               Text="Max"
-                                               HorizontalAlignment="Center"
-                                               FontWeight="SemiBold"/>
-                                    <Border Width="28"
-                                            Height="240"
-                                            BorderBrush="#BFCBDD"
-                                            BorderThickness="1"
-                                            HorizontalAlignment="Center"
-                                            Margin="0,8,0,8"
-                                            CornerRadius="4">
-                                        <Image x:Name="ColorLegendImage" Stretch="Fill"/>
-                                    </Border>
-                                    <TextBlock x:Name="LegendMinValueText"
-                                               Text="Min"
-                                               HorizontalAlignment="Center"
-                                               FontWeight="SemiBold"/>
-                                    <Separator Margin="0,14,0,14"/>
-                                    <TextBlock Text="Tips"
-                                               FontWeight="SemiBold"
-                                               Margin="0,0,0,6"/>
-                                    <TextBlock Text="- Click on 2D map to sync all views"
-                                               Foreground="{StaticResource TextSubBrush}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,0,0,4"/>
-                                    <TextBlock Text="- Click chromatogram to move by time"
-                                               Foreground="{StaticResource TextSubBrush}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,0,0,4"/>
-                                    <TextBlock Text="- Click spectrum to move by wavelength"
-                                               Foreground="{StaticResource TextSubBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
+                                    Padding="12"
+                                    MinWidth="350">
+                                <TabControl Margin="0">
+                                    <TabItem Header="Scale">
+                                        <Grid Margin="4">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel Grid.Row="0" x:Name="SettingsPanel">
+                                                <TextBlock Text="Rendering"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0,0,0,8"/>
+                                                <TextBlock Text="Colors"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,0,4"
+                                                           Foreground="{StaticResource TextSubBrush}"/>
+                                                <Slider x:Name="ColorStepsSlider"
+                                                        Minimum="2"
+                                                        Maximum="64"
+                                                        Value="16"
+                                                        ValueChanged="ColorStepsSlider_ValueChanged"
+                                                        VerticalAlignment="Center"/>
+                                                <TextBlock Text="Palette"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,10,0,4"
+                                                           Foreground="{StaticResource TextSubBrush}"/>
+                                                <ComboBox x:Name="ColorSchemeComboBox"
+                                                          SelectionChanged="ColorSchemeComboBox_SelectionChanged"
+                                                          Width="170"
+                                                          VerticalAlignment="Center">
+                                                    <ComboBoxItem Content="Blue-Red" IsSelected="True"/>
+                                                    <ComboBoxItem Content="Viridis"/>
+                                                    <ComboBoxItem Content="Jet"/>
+                                                    <ComboBoxItem Content="Hot"/>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                                                <TextBlock Text="Color Scale"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0,0,0,8"/>
+                                                <TextBlock x:Name="LegendMaxValueText"
+                                                           Text="Max"
+                                                           HorizontalAlignment="Center"
+                                                           FontWeight="SemiBold"/>
+                                                <Border Width="28"
+                                                        Height="240"
+                                                        BorderBrush="#BFCBDD"
+                                                        BorderThickness="1"
+                                                        HorizontalAlignment="Center"
+                                                        Margin="0,8,0,8"
+                                                        CornerRadius="4">
+                                                    <Image x:Name="ColorLegendImage" Stretch="Fill"/>
+                                                </Border>
+                                                <TextBlock x:Name="LegendMinValueText"
+                                                           Text="Min"
+                                                           HorizontalAlignment="Center"
+                                                           FontWeight="SemiBold"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Margin="0,14,0,0" VerticalAlignment="Top">
+                                                <TextBlock Text="Tips"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0,0,0,6"/>
+                                                <TextBlock Text="- Click on 2D map to sync all views"
+                                                           Foreground="{StaticResource TextSubBrush}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,0,0,4"/>
+                                                <TextBlock Text="- Click chromatogram to move by time"
+                                                           Foreground="{StaticResource TextSubBrush}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,0,0,4"/>
+                                                <TextBlock Text="- Click spectrum to move by wavelength"
+                                                           Foreground="{StaticResource TextSubBrush}"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </TabItem>
+
+                                    <TabItem Header="Peaks">
+                                        <Border Background="White"
+                                                BorderBrush="#D5DFEA"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="8"
+                                                Margin="4">
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Top"
+                                                           x:Name="PeaksHeaderText"
+                                                           Text="Detected peaks (current wavelength)"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0,0,0,8"/>
+                                                <DataGrid x:Name="PeaksDataGrid"
+                                                          AutoGenerateColumns="False"
+                                                          HeadersVisibility="Column"
+                                                          CanUserAddRows="False"
+                                                          IsReadOnly="True"
+                                                          SelectionMode="Single"
+                                                          SelectionChanged="PeaksDataGrid_SelectionChanged"
+                                                          RowHeaderWidth="0"
+                                                          FontSize="12"
+                                                          RowHeight="26"
+                                                          MinHeight="420">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="44"/>
+                                                        <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="*"/>
+                                                        <DataGridTextColumn Header="Height" Binding="{Binding Intensity}" Width="*"/>
+                                                        <DataGridTextColumn Header="Prom" Binding="{Binding Prominence}" Width="*"/>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </DockPanel>
+                                        </Border>
+                                    </TabItem>
+                                </TabControl>
                             </Border>
                         </Grid>
                     </TabItem>
@@ -381,6 +462,12 @@
                                     <TextBlock Text="3D Controls"
                                                FontWeight="SemiBold"
                                                Margin="0,0,0,6"/>
+                                    <CheckBox x:Name="Show3DGridCheckBox"
+                                              Content="Show grid"
+                                              IsChecked="True"
+                                              Margin="0,0,0,8"
+                                              Checked="Show3DGridCheckBox_Changed"
+                                              Unchecked="Show3DGridCheckBox_Changed"/>
                                     <TextBlock Text="- Drag with left mouse button to rotate"
                                                Foreground="{StaticResource TextSubBrush}"
                                                TextWrapping="Wrap"
