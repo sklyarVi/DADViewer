@@ -7,9 +7,9 @@ public class DADData
 {
     public int NWaves { get; private set; }
     public int NSpect { get; private set; }
-    public double[] TimeStamps { get; private set; }
-    public float[] Wavelengths { get; private set; }
-    public double[,] Intensities { get; private set; }
+    public double[] TimeStamps { get; private set; } = Array.Empty<double>();
+    public float[] Wavelengths { get; private set; } = Array.Empty<float>();
+    public double[,] Intensities { get; private set; } = new double[0, 0];
 
     // Added Subsidiary properties
     public double[] TimeValues => TimeStamps;
@@ -40,7 +40,7 @@ public class DADData
         // 4 + 4 + (nSpect * 8) + (nWaves * 4) + (nSpect * nWaves * 8)
         const int headerSize = 8; // 4 bytes for nWaves + 4 bytes for nSpect
 
-        using (var reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+        using (var reader = new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
         {
             //read nWaves and nSpect
             dadData.NWaves = reader.ReadInt32();
@@ -50,10 +50,11 @@ public class DADData
             {
                 throw new FormatException("Invalid data dimensions");
             }
-            long expectedSize = headerSize + 
-                              (dadData.NSpect * sizeof(double)) + // TimeStamps
-                              (dadData.NWaves * sizeof(float)) +  // Wavelengths
-                              (dadData.NSpect * dadData.NWaves * sizeof(double)); // Intensities
+            long expectedSize = checked(
+                headerSize +
+                ((long)dadData.NSpect * sizeof(double)) +
+                ((long)dadData.NWaves * sizeof(float)) +
+                ((long)dadData.NSpect * dadData.NWaves * sizeof(double)));
 
             if (fileInfo.Length < expectedSize)
             {

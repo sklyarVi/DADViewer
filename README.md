@@ -19,6 +19,13 @@ This application reads DAD data from a specific binary file format and provides 
 * **Chromatogram View:** Extracts and displays a chromatogram (Intensity vs. Time) for a specific wavelength. Allows interactive scrolling through wavelengths to update the chromatogram view.
 * **Spectrum View:** Extracts and displays a spectrum (Intensity vs. Wavelength) for a specific time point.
 * **Interactive Exploration:** Allows users to select points or slices within the data maps to view corresponding chromatograms and spectra.
+* **Linked Selection/Crosshair:** Selecting a point in 2D, chromatogram, or spectrum synchronizes all views to the same `(time, wavelength)` location.
+* **Export Tools:**
+    * Export current 2D map as PNG.
+    * Export current chromatogram as CSV.
+    * Export current spectrum as CSV.
+* **Dynamic Color Legend:** Color scale legend updates automatically when color scheme/steps change and displays actual min/max intensity.
+* **Performance Decimation:** 2D and 3D rendering automatically downsample very large datasets for smoother interaction.
   
 ![image](https://github.com/user-attachments/assets/d492e787-efdc-4667-8c43-10f918bd2fce)
 
@@ -42,3 +49,4 @@ This application reads DAD data from a specific binary file format and provides 
 4. Build the solution to restore NuGet packages. (build restore)
 5. Run the application. (dotnet build / dotnet run)
 6. Use the "Load Data" command to open a DAD file and interact with the various visualizations.
+7. Optional: run parser tests with `dotnet test`.
