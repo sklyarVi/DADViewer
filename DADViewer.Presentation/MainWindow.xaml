@@ -1,0 +1,78 @@
+<Window x:Class="DADViewer.Presentation.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:views="clr-namespace:DADViewer.Presentation.Views"
+ Title="DAD Viewer" Width="1280" Height="880" MinWidth="950" MinHeight="680"
+ Background="#F2F5F8" AllowDrop="True" Drop="Window_Drop">
+ <Window.Resources>
+  <BooleanToVisibilityConverter x:Key="BoolVisibility"/>
+  <Style TargetType="Button"><Setter Property="Padding" Value="12,6"/><Setter Property="Margin" Value="0,0,8,0"/></Style>
+  <Style TargetType="GroupBox"><Setter Property="Margin" Value="0,0,0,12"/><Setter Property="Padding" Value="10"/></Style>
+ </Window.Resources>
+ <DockPanel Margin="16" Background="#F2F5F8">
+  <StackPanel DockPanel.Dock="Top">
+   <DockPanel Margin="0,0,0,12">
+    <TextBlock Text="DAD Viewer" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,24,0"/>
+    <Button Content="Open DAD…" Click="Open_Click" IsEnabled="{Binding CanOpen}" AutomationProperties.AutomationId="OpenFile"/>
+    <Button Content="Cancel loading" Click="Cancel_Click" IsEnabled="{Binding IsBusy}"/>
+    <TextBlock Text="{Binding FileName}" VerticalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+   </DockPanel>
+   <TextBlock Text="{Binding Summary}" Margin="0,0,0,6"/>
+   <TextBlock Text="{Binding Selection}" FontWeight="SemiBold" Margin="0,0,0,12" TextWrapping="Wrap"/>
+  </StackPanel>
+  <Border DockPanel.Dock="Bottom" Background="White" Padding="10" Margin="0,10,0,0">
+   <StackPanel>
+    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" AutomationProperties.AutomationId="LoadStatus"/>
+    <TextBlock x:Name="RenderStatus" Foreground="DimGray" TextWrapping="Wrap"/>
+    <ProgressBar Height="5" Minimum="0" Maximum="100" Value="{Binding Progress,Mode=OneWay}" Visibility="{Binding IsBusy,Converter={StaticResource BoolVisibility}}" Margin="0,5,0,0"/>
+   </StackPanel>
+  </Border>
+  <ScrollViewer DockPanel.Dock="Right" Width="252" Margin="14,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="0,0,8,0" IsEnabled="{Binding HasData}">
+   <GroupBox Header="Selected point">
+    <StackPanel>
+     <TextBlock Text="Time index"/>
+     <Slider Minimum="0" Maximum="{Binding MaxTimeIndex}" Value="{Binding TimeIndex,Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" AutomationProperties.AutomationId="TimeSlider"/>
+     <TextBlock Text="{Binding TimeIndex}" Margin="0,0,0,10"/>
+     <TextBlock Text="Wavelength index"/>
+     <Slider Minimum="0" Maximum="{Binding MaxWavelengthIndex}" Value="{Binding WavelengthIndex,Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" AutomationProperties.AutomationId="WavelengthSlider"/>
+     <TextBlock Text="{Binding WavelengthIndex}"/>
+    </StackPanel>
+   </GroupBox>
+   <GroupBox Header="Color scale">
+    <StackPanel>
+     <ComboBox x:Name="SchemeSelector" SelectedItem="{Binding Scheme,Mode=TwoWay}" Margin="0,0,0,10"/>
+     <TextBlock Text="Number of colors"/>
+     <Slider Minimum="2" Maximum="256" Value="{Binding ColorSteps,Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True"/>
+     <TextBlock Text="{Binding ColorSteps}" Margin="0,0,0,10"/>
+     <TextBlock Text="Minimum intensity"/>
+     <TextBox Text="{Binding ColorMinimum,Mode=TwoWay,ValidatesOnExceptions=True}" Margin="0,3,0,8"/>
+     <TextBlock Text="Maximum intensity"/>
+     <TextBox Text="{Binding ColorMaximum,Mode=TwoWay,ValidatesOnExceptions=True}" Margin="0,3,0,10"/>
+     <WrapPanel><Button Content="Apply" Click="Apply_Click"/><Button Content="Auto range" Click="AutoRange_Click"/></WrapPanel>
+     <Rectangle x:Name="ColorLegend" Height="18" Margin="0,12,0,4"/>
+     <TextBlock x:Name="LegendRange" FontSize="11" TextWrapping="Wrap"/>
+    </StackPanel>
+   </GroupBox>
+   <TextBlock Text="Click the map or either slice to select a point. The map is a sampled overview; slices retain signal extrema. Time uses the units stored in the file." TextWrapping="Wrap" Foreground="DimGray"/>
+  </StackPanel></ScrollViewer>
+  <Grid>
+   <Grid.RowDefinitions><RowDefinition Height="3*"/><RowDefinition Height="8"/><RowDefinition Height="2*"/></Grid.RowDefinitions>
+   <TabControl>
+    <TabItem Header="Intensity map"><views:DAD2DView x:Name="MapView"/></TabItem>
+    <TabItem Header="3D surface">
+     <DockPanel>
+      <CheckBox DockPanel.Dock="Top" Content="Build 3D preview" IsChecked="{Binding Show3D,Mode=TwoWay}" IsEnabled="{Binding HasData}" Margin="12"/>
+      <views:DAD3DView x:Name="SurfaceView"/>
+     </DockPanel>
+    </TabItem>
+   </TabControl>
+   <GridSplitter Grid.Row="1" Height="8" HorizontalAlignment="Stretch"/>
+   <Grid Grid.Row="2">
+    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+    <views:SlicePlot x:Name="Chromatogram"/>
+    <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch"/>
+    <views:SlicePlot x:Name="Spectrum" Grid.Column="2"/>
+   </Grid>
+  </Grid>
+ </DockPanel>
+</Window>

@@ -3,3 +3,14 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.DotSettings.user
+# Local documentation, audit notes and preserved source snapshots
+/docs/
+TestResults/
+artifacts/
+*.log
+/README.md
