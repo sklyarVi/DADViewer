@@ -1,17 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0-windows</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="DADViewer.Tests\**\*.cs" />
-        <EmbeddedResource Remove="DADViewer.Tests\**\*" />
-        <None Remove="DADViewer.Tests\**\*" />
-        <Page Remove="DADViewer.Tests\**\*.xaml" />
-    </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AssemblyName>DADViewer</AssemblyName>
+    <ApplicationIcon>assets/DADViewer.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="ThirdPartyNotices.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <ApplicationDefinition Include="DADViewer/App.xaml" />
+    <Compile Include="DADViewer/App.xaml.cs" />
+    <ProjectReference Include="DADViewer.Presentation/DADViewer.Presentation.csproj" />
+    <ProjectReference Include="DADViewer.Infrastructure/DADViewer.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,56 +1,62 @@
 # DADViewer
 
-DADViewer is a Windows application developed using C# and WPF, designed for visualizing 2D data obtained from a Diode Array Detector (DAD).
+DADViewer is an open-source Windows desktop application for exploring chromatography data from diode-array detectors (DAD/PDA). View a measurement as an intensity map, inspect chromatograms and spectra, analyze peaks, and compare signals across supported data sources.
 
-## Overview
-
-Diode Array Detectors generate 2D data, typically representing multiple UV (Ultra Violet) spectra measured sequentially over time. This results in a data matrix where intensity is a function of both time and wavelength (Intensity = f(Time, Wavelength)).
-
-This application reads DAD data from a specific binary file format and provides several ways to visualize and analyze it.
+Built with C#, .NET 10, and WPF. Data is processed locally, and source files are opened read-only.
 
 ## Features
 
-* **Load Data:** Parses and loads DAD data from the specified binary file format (containing wavelength array, time array, and the intensity matrix).
-* **2D Intensity Map:** Displays the core DAD data as a 2D map where color represents the UV signal intensity.
-    * **Customizable Color Scale:**
-        * User can specify the number of colors in the scale.
-        * Colors within the scale can be easily modified.
-        * Color scale steps can be set manually by the user or determined automatically based on the data range (e.g., (Max Signal - Min Signal) / Number of Colors).
-    * **Axes and Grid:** 2D map includes wavelength/time axis guides and tick labels for easier interpretation.
-* **Chromatogram View:** Extracts and displays a chromatogram (Intensity vs. Time) for a specific wavelength. Allows interactive scrolling through wavelengths to update the chromatogram view.
-* **Spectrum View:** Extracts and displays a spectrum (Intensity vs. Wavelength) for a specific time point.
-* **Interactive Exploration:** Allows users to select points or slices within the data maps to view corresponding chromatograms and spectra.
-* **Linked Selection/Crosshair:** Selecting a point in 2D, chromatogram, or spectrum synchronizes all views to the same `(time, wavelength)` location.
-* **Auto Peak Detection:** Detects chromatogram peaks for the selected wavelength and lists them in a table for quick navigation.
-* **Export Tools:**
-    * Export current 2D map as PNG.
-    * Export current chromatogram as CSV.
-    * Export current spectrum as CSV.
-* **Dynamic Color Legend:** Color scale legend updates automatically when color scheme/steps change and displays actual min/max intensity.
-* **Performance Decimation:** 2D and 3D rendering automatically downsample very large datasets for smoother interaction.
-* **3D Axes and Floor Grid:** 3D view includes axis guides and base grid to improve spatial orientation.
-* **Profile-based DAD Parsing:** Supports multiple binary layouts via parser profiles with automatic format detection.
-  
-![image](https://github.com/user-attachments/assets/d492e787-efdc-4667-8c43-10f918bd2fce)
+- Interactive intensity maps and 3D surface previews.
+- Linked chromatogram and spectrum views with point selection, zoom, and pan.
+- Adjustable color palettes and intensity ranges.
+- Peak analysis with baseline options, peak area, height, and width measurements.
+- Reference signal overlays and numerical comparison for compatible intensity units.
+- CSV export for signals and analysis results, plus PNG export for maps and plots.
+- Drag-and-drop loading, dataset folder selection, recent files, and restored view settings.
 
-* **3D Visualization:** Presents the DAD data as an interactive 3D surface map (Time x Wavelength vs. Intensity) that can be rotated by the user.
-  
-![image](https://github.com/user-attachments/assets/4f2b1cd4-00f9-4622-a6c3-e1e54420bd62)
-  
+## Supported formats
 
+| Source | Input | Supported data |
+| --- | --- | --- |
+| Agilent ChemStation / OpenLab | `.uv`, `.D` folders | UV version 31 LC and version 131 LC/OL spectra |
+| Waters MassLynx | `.raw` folders, `_FUNCnnn.DAT` | PDA type-12 spectra in the six-byte encoding; companion `.IDX` and `_FUNCTNS.INF` files are required |
+| Waters Empower | `.arw` | Full 3D PDA ASCII exports |
+| Thermo Chromeleon | `.txt` | Full UV spectral-field ASCII exports |
+| DADViewer legacy format | `.dad` | Binary time × wavelength intensity matrices |
 
-## Technology
+Support applies to these specific formats. Native Chromeleon binary `.dad` and `.cmbx` files, mass spectra, single-channel imports, and changing wavelength grids are not supported. The `.dad` extension alone does not identify a compatible file.
 
-* C#
-* .NET (Based on project files, likely .NET 9.0 or similar)
-* WPF (Windows Presentation Foundation)
+Where the source unit is known, absorbance is normalized to mAU. Waters MassLynx currently retains its decoded raw absorbance scale, and legacy DAD retains file units. The interface and exports identify these units; incompatible scales cannot be overlaid or compared numerically.
 
-## Getting Started
+## Build and run
 
-1. Clone the repository.
-2. Download .Net 9 SDK - https://dotnet.microsoft.com/en-us/download/dotnet/9.0
-3. Open the solution in Visual Studio.
-4. Build the solution to restore NuGet packages. (build restore)
-5. Run the application. (dotnet build / dotnet run)
-6. Use the "Load Data" command to open a DAD file and interact with the various visualizations.
-7. Optional: run parser tests with `dotnet test`.
+Requires Windows and the .NET 10 SDK.
+
+From the repository root:
+
+```powershell
+dotnet build DADViewer.sln -c Release
+dotnet run --project DADViewer.csproj -c Release
+```
+
+Use **Open data…** to select a file, **Folder…** to open an Agilent or Waters dataset, or drag a file or dataset folder into the window. If a folder contains multiple supported channels, select the desired `.uv` or `.DAT` file directly. Keep the Waters companion files together.
+
+Click the intensity map to inspect a point, then use **Analyze / Compare…** for peak analysis or a reference signal. Use **Export…** to save the selected view or signal.
+
+## Portable build
+
+Create a Windows x64 package with the included PowerShell script:
+
+```powershell
+.\scripts\Publish.ps1
+```
+
+The ZIP archive and SHA-256 checksum are written to `artifacts/releases/`. Extract the entire archive and run `DADViewer.exe`. The portable package includes the .NET runtime.
+
+## Data and display limits
+
+Each dataset is limited to eight million intensity values. Intensity maps and 3D surfaces are sampled previews; zoom into the map and inspect signal slices for detail. Imported measurements remain unchanged.
+
+## License
+
+DADViewer is licensed under the [MIT License](LICENSE). Third-party notices are listed in [ThirdPartyNotices.txt](ThirdPartyNotices.txt).

@@ -1,0 +1,9 @@
+<UserControl x:Class="DADViewer.Presentation.Views.DAD3DView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Grid Background="White" MouseRightButtonDown="BeginRotate" MouseRightButtonUp="EndRotate" MouseMove="Rotate" MouseWheel="Zoom">
+  <Viewport3D x:Name="Viewport" />
+  <TextBlock x:Name="Hint" Text="Enable 3D after loading a file" VerticalAlignment="Top" Margin="12" IsHitTestVisible="False" TextWrapping="Wrap"/>
+  <Button Content="Reset camera" Click="ResetCamera" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Padding="8,4"/>
+ </Grid>
+</UserControl>
