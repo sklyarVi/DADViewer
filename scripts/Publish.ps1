@@ -43,7 +43,9 @@ Reset all plots resets the 2D map and both slices.
 CSV exports the complete selected slice with round-trip numeric precision.
 PNG exports the visible plot at 192 dpi with source, selection and scale.
 Viridis, Jet and Grayscale support 2 to 256 color levels.
-3D is a sampled preview (up to 128 samples per axis).
+3D uses adaptive sampling (up to 128 samples per axis), retaining the global
+minimum and maximum at their measured coordinates. Smaller local peaks and
+peak widths may still be approximated; use slices/CSV for measurements.
 
 Settings and recent file paths: %LOCALAPPDATA%\DADViewer\settings.json
 Error logs: %LOCALAPPDATA%\DADViewer\diagnostics.log

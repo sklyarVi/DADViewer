@@ -2,7 +2,10 @@
 param([string]$Archive)
 $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-if (!$Archive) { $Archive = Join-Path $repo 'artifacts/releases/DADViewer-0.2.0-win-x64-portable.zip' }
+if (!$Archive) {
+    [xml]$props = Get-Content -LiteralPath (Join-Path $repo 'Directory.Build.props')
+    $Archive = Join-Path $repo ("artifacts/releases/DADViewer-" + $props.Project.PropertyGroup.Version + "-win-x64-portable.zip")
+}
 $archivePath = [IO.Path]::GetFullPath($Archive)
 $expectedHash = (Get-Content -LiteralPath ($archivePath + '.sha256')).Split(' ')[0]
 if ((Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash -ne $expectedHash) { throw 'Archive checksum mismatch.' }

@@ -75,20 +75,21 @@ public partial class DAD3DView : UserControl
         if (_surface != null) Viewport.Children.Remove(_surface);
         _surface = new ModelVisual3D { Content = model }; Viewport.Children.Add(_surface);
         VertexCount = ((MeshGeometry3D)model.Geometry).Positions.Count; _data = data;
-        Hint.Text = $"Sampled 3D preview · {VertexCount:N0} vertices · normalized axes: X=time, Y=wavelength, Z=intensity\nRotate: right drag · Zoom: mouse wheel · Exact values: linked 2D views";
+        Hint.Text = $"Adaptive 3D preview · {VertexCount:N0} vertices · global min/max retained · normalized axes: X=time, Y=wavelength, Z=intensity\nRotate: right drag · Zoom: mouse wheel · Exact values: linked 2D views";
         if (reset) { _yaw = -65; _pitch = 35; _fitCamera = true; UpdateCamera(); FitCamera(); }
     }
     public static MeshGeometry3D BuildMesh(DADData data, ColorScale scale, CancellationToken token = default)
     {
-        int nt = Math.Min(data.NSpect, MaxSamplesPerAxis), nw = Math.Min(data.NWaves, MaxSamplesPerAxis);
+        var samples = SurfaceSampler.Select(data, MaxSamplesPerAxis, token);
+        int nt = samples.Times.Length, nw = samples.Wavelengths.Length;
         var mesh = new MeshGeometry3D();
         for (int t = 0; t < nt; t++)
         {
             token.ThrowIfCancellationRequested();
-            int ti = nt == 1 ? 0 : (int)Math.Round(t * (data.NSpect - 1d) / (nt - 1));
+            int ti = samples.Times[t];
             for (int w = 0; w < nw; w++)
             {
-                int wi = nw == 1 ? 0 : (int)Math.Round(w * (data.NWaves - 1d) / (nw - 1));
+                int wi = samples.Wavelengths[w];
                 double intensity = data.GetIntensity(ti, wi);
                 mesh.Positions.Add(new Point3D(ColorMap.Normalize(data.TimeStamps[ti], data.TimeStamps[0], data.TimeStamps[^1]) * 10,
                     ColorMap.Normalize(data.Wavelengths[wi], data.Wavelengths[0], data.Wavelengths[^1]) * 10,
