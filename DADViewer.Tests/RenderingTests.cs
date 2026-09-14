@@ -10,6 +10,7 @@ using DADViewer.Presentation.ViewModels;
 using DADViewer.Presentation.Views;
 namespace DADViewer.Tests;
 
+[Collection("WPF")]
 public sealed class RenderingTests
 {
     [Theory]
@@ -109,7 +110,7 @@ public sealed class RenderingTests
             if (FindTab(VisualTreeHelper.GetChild(parent, i)) is { } found) return found;
         return null;
     }
-    private static async Task Snapshot(MainWindow window, string name, int width, int height)
+    internal static async Task Snapshot(MainWindow window, string name, int width, int height)
     {
         window.Width = width; window.Height = height;
         var content = (FrameworkElement)window.Content;
@@ -123,7 +124,7 @@ public sealed class RenderingTests
         using var file = File.Create(Path.Combine(directory, name)); encoder.Save(file);
 
     }
-    private static async Task OnSta(Func<Task> action)
+    internal static async Task OnSta(Func<Task> action)
     {
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>

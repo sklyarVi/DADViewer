@@ -1,3 +1,4 @@
+using DADViewer.Application;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
@@ -11,11 +12,16 @@ public partial class MainWindow : Window
     private readonly MainViewModel _viewModel;
     private CancellationTokenSource? _rendering;
     private bool _closed;
+    private DADViewer.Domain.DADData? _surfaceData;
+    private ColorScale? _surfaceScale;
     public Task RenderingTask { get; private set; } = Task.CompletedTask;
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow(MainViewModel viewModel, IFileExportService? exports = null, IUserStateStore? stateStore = null, IDiagnostics? diagnostics = null)
     {
         InitializeComponent();
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag);
+        _exports = exports; _stateStore = stateStore; _diagnostics = diagnostics;
         _viewModel = viewModel; DataContext = viewModel;
+        MapView.ViewportChanged += (_, _) => StartRendering();
         SchemeSelector.ItemsSource = Enum.GetValues<ColorScheme>();
         _viewModel.PropertyChanged += ViewModelChanged;
         MapView.DataPointSelected += (_, point) => _viewModel.Select(point.TimeIndex, point.WavelengthIndex);
@@ -25,12 +31,12 @@ public partial class MainWindow : Window
     private async void Open_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog { Filter = "DAD files (*.dad)|*.dad|All files (*.*)|*.*", CheckFileExists = true };
-        if (dialog.ShowDialog(this) == true) await _viewModel.LoadAsync(dialog.FileName);
+        if (dialog.ShowDialog(this) == true) await LoadFileAsync(dialog.FileName);
     }
     private async void Window_Drop(object sender, DragEventArgs e)
     {
         if (_viewModel.IsBusy) return;
-        if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } files) await _viewModel.LoadAsync(files[0]);
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } files) await LoadFileAsync(files[0]);
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _viewModel.CancelLoading();
     private void Apply_Click(object sender, RoutedEventArgs e) => StartRendering();
@@ -38,7 +44,7 @@ public partial class MainWindow : Window
     private void ViewModelChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_closed) return;
-        if (e.PropertyName == nameof(MainViewModel.Data)) { MapView.Clear(); SurfaceView.Clear(); UpdateSlices(); StartRendering(); }
+        if (e.PropertyName == nameof(MainViewModel.Data)) { _appliedScale = null; MapView.Clear(); SurfaceView.Clear(); _surfaceData = null; UpdateSlices(); StartRendering(); }
         else if (e.PropertyName == nameof(MainViewModel.Selection)) UpdateSlices();
         else if (e.PropertyName is nameof(MainViewModel.Scheme) or nameof(MainViewModel.ColorSteps) or nameof(MainViewModel.Show3D)) StartRendering();
     }
@@ -46,7 +52,7 @@ public partial class MainWindow : Window
     {
         var d = _viewModel.Data; if (d == null) return;
         MapView.Select(_viewModel.TimeIndex, _viewModel.WavelengthIndex);
-        Chromatogram.SetSeries(d.TimeStamps, d.GetChromatogram(_viewModel.WavelengthIndex), _viewModel.TimeIndex, "Time (file units)", $"Chromatogram · {d.Wavelengths[_viewModel.WavelengthIndex]:G5} nm");
+        Chromatogram.SetSeries(d.TimeStamps, d.GetChromatogram(_viewModel.WavelengthIndex), _viewModel.TimeIndex, "Time (min)", $"Chromatogram · {d.Wavelengths[_viewModel.WavelengthIndex]:G5} nm");
         Spectrum.SetSeries(d.Wavelengths, d.GetSpectrum(_viewModel.TimeIndex), _viewModel.WavelengthIndex, "Wavelength (nm)", $"Spectrum · time {d.TimeStamps[_viewModel.TimeIndex]:G5}");
     }
     private void StartRendering()
@@ -65,28 +71,29 @@ public partial class MainWindow : Window
             RenderStatus.Text = "Rendering…";
             var map = MapView.RenderAsync(data, scale, cts.Token);
             Task surface;
-            if (_viewModel.Show3D) surface = SurfaceView.RenderAsync(data, scale, cts.Token);
-            else { SurfaceView.Clear(); surface = Task.CompletedTask; }
+            if (_viewModel.Show3D) surface = ReferenceEquals(_surfaceData, data) && _surfaceScale == scale ? Task.CompletedTask : SurfaceView.RenderAsync(data, scale, cts.Token);
+            else { SurfaceView.Clear(); _surfaceData = null; surface = Task.CompletedTask; }
             await Task.WhenAll(map, surface);
             cts.Token.ThrowIfCancellationRequested();
+            if (_viewModel.Show3D) { _surfaceData = data; _surfaceScale = scale; }
             var gradient = new LinearGradientBrush();
             for (int i = 0; i < scale.Steps; i++)
             {
                 var color = ColorMap.Get(i / (scale.Steps - 1d), scale.Steps, scale.Scheme);
-                gradient.GradientStops.Add(new GradientStop(color, i / (double)scale.Steps));
-                gradient.GradientStops.Add(new GradientStop(color, (i + 1) / (double)scale.Steps));
+                gradient.GradientStops.Add(new GradientStop(color, Math.Max(0, (i - 0.5) / (scale.Steps - 1))));
+                gradient.GradientStops.Add(new GradientStop(color, Math.Min(1, (i + 0.5) / (scale.Steps - 1))));
             }
-            ColorLegend.Fill = gradient;
+            _appliedScale = scale; ColorLegend.Fill = gradient;
             LegendRange.Text = $"{scale.Minimum:G6} … {scale.Maximum:G6} ({scale.Steps} colors)";
             RenderStatus.Text = "Views ready. Click a point to inspect exact values.";
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { if (ReferenceEquals(_rendering, cts) && !_closed) RenderStatus.Text = $"Unable to render: {ex.Message}"; }
+        catch (Exception ex) { _diagnostics?.Record("Render", ex); if (ReferenceEquals(_rendering, cts) && !_closed) RenderStatus.Text = $"Unable to render: {ex.Message}"; }
         finally { if (ReferenceEquals(_rendering, cts)) _rendering = null; cts.Dispose(); }
     }
     protected override void OnClosed(EventArgs e)
     {
-        _closed = true; _viewModel.PropertyChanged -= ViewModelChanged;
+        SaveSession(); _closed = true; _viewModel.PropertyChanged -= ViewModelChanged;
         _rendering?.Cancel(); _viewModel.Dispose(); base.OnClosed(e);
     }
 }

@@ -4,7 +4,7 @@ using DADViewer.Domain;
 using DADViewer.Presentation.Rendering;
 namespace DADViewer.Presentation.ViewModels;
 
-public sealed class MainViewModel(ILoadDataService loader) : ViewModelBase, IDisposable
+public sealed class MainViewModel(ILoadDataService loader, IDiagnostics? diagnostics = null) : ViewModelBase, IDisposable
 {
     private CancellationTokenSource? _loading;
     private bool _disposed;
@@ -21,12 +21,12 @@ public sealed class MainViewModel(ILoadDataService loader) : ViewModelBase, IDis
     public bool CanOpen => !IsBusy;
     public double Progress { get => _progress; private set { _progress = value; OnPropertyChanged(); } }
     public string Status { get => _status; set { _status = value; OnPropertyChanged(); } }
-    public string FileName => _fileName;
+    public string FileName => _fileName; public string FilePath { get; private set; } = "";
     public int MaxTimeIndex => (_data?.NSpect ?? 1) - 1;
     public int MaxWavelengthIndex => (_data?.NWaves ?? 1) - 1;
     public int TimeIndex { get => _time; set => Select(value, _wave); }
     public int WavelengthIndex { get => _wave; set => Select(_time, value); }
-    public string Selection => _data == null ? "" : $"Time: {_data.TimeStamps[_time]:G6} (file units)  |  Wavelength: {_data.Wavelengths[_wave]:G6} nm  |  Intensity: {_data.GetIntensity(_time, _wave):G6}";
+    public string Selection => _data == null ? "" : $"Time: {_data.TimeStamps[_time]:G6} min  |  Wavelength: {_data.Wavelengths[_wave]:G6} nm  |  Intensity: {_data.GetIntensity(_time, _wave):G6}";
     public string Summary => _data == null ? "" : $"{_data.NSpect:N0} spectra × {_data.NWaves:N0} wavelengths  |  Signal: {_data.MinIntensity:G6} … {_data.MaxIntensity:G6}";
     public int ColorSteps { get => _steps; set { value = Math.Clamp(value, 2, 256); if (_steps == value) return; _steps = value; OnPropertyChanged(); } }
     public ColorScheme Scheme { get => _scheme; set { if (_scheme == value) return; _scheme = value; OnPropertyChanged(); } }
@@ -60,13 +60,13 @@ public sealed class MainViewModel(ILoadDataService loader) : ViewModelBase, IDis
             var progress = new Progress<double>(value => { if (ReferenceEquals(_loading, cts)) Progress = value; });
             var loaded = await loader.LoadAsync(path, cts.Token, progress);
             cts.Token.ThrowIfCancellationRequested();
-            _data = loaded; _fileName = Path.GetFileName(path); _time = 0; _wave = 0;
+            FilePath = Path.GetFullPath(path); _data = loaded; _fileName = Path.GetFileName(path); _time = 0; _wave = 0;
             _minimum = loaded.MinIntensity; _maximum = loaded.MaxIntensity;
             Status = "File loaded.";
             foreach (string name in new[] { nameof(Data), nameof(HasData), nameof(FileName), nameof(MaxTimeIndex), nameof(MaxWavelengthIndex), nameof(TimeIndex), nameof(WavelengthIndex), nameof(Selection), nameof(Summary), nameof(ColorMinimum), nameof(ColorMaximum) }) OnPropertyChanged(name);
         }
         catch (OperationCanceledException) { Status = "Loading cancelled. Previous data retained."; }
-        catch (Exception ex) { Status = $"Unable to load file: {ex.Message}"; }
+        catch (Exception ex) { diagnostics?.Record("Load DAD", ex); Status = $"Unable to load file: {ex.Message}"; }
         finally { if (ReferenceEquals(_loading, cts)) { _loading = null; IsBusy = false; } cts.Dispose(); }
     }
     public void CancelLoading() => _loading?.Cancel();

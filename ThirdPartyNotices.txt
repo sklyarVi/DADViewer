@@ -1,0 +1,6 @@
+Viridis color map
+Authors: Nathaniel J. Smith, Stefan van der Walt, Eric Firing.
+Source: https://github.com/BIDS/colormap/blob/master/colormaps.py
+The original file and color maps are released under CC0 / public domain:
+https://creativecommons.org/publicdomain/zero/1.0/
+This application uses the original 256 Viridis samples rounded to 8-bit RGB.
