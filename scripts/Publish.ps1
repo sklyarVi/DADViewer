@@ -47,6 +47,19 @@ Viridis, Jet and Grayscale support 2 to 256 color levels.
 minimum and maximum at their measured coordinates. Smaller local peaks and
 peak widths may still be approximated; use slices/CSV for measurements.
 
+Analyze / Compare opens numerical analysis of a primary slice and an optional
+reference file. Choose wavelength for a chromatogram or time for a spectrum.
+Set the baseline, minimum local prominence (file units) and minimum distance,
+then Analyze. The graph and calculation cover the full slice, independent of zoom.
+Height is relative to the baseline; area is integrated between adjacent valleys.
+Negative peaks use positive height and signed negative area. Unresolved widths
+are blank. This first version does not deconvolve overlapping peaks or identify
+substances. Review the baseline and integration bounds before using results.
+Comparison uses the nearest measured reference slice and linear interpolation
+only within shared axis coverage; no alignment or normalization is performed.
+Export peaks CSV includes parameters; comparison CSV includes paired raw values
+and differences. No AI service or network connection is required.
+
 Settings and recent file paths: %LOCALAPPDATA%\DADViewer\settings.json
 Error logs: %LOCALAPPDATA%\DADViewer\diagnostics.log
 Uncheck Reopen last file on startup to start with an empty workspace.

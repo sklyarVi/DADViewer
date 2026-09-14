@@ -21,8 +21,9 @@ public partial class App : System.Windows.Application
             args.Handled = true; Shutdown(1);
         };
         AppDomain.CurrentDomain.UnhandledException += (_, args) => { if (args.ExceptionObject is Exception ex) diagnostics.Record("Unhandled exception", ex); };
-        var viewModel = new MainViewModel(new LoadDataService(new DADDataRepository()), diagnostics);
-        var window = new MainWindow(viewModel, new FileExportService(), new JsonUserStateStore(Path.Combine(directory, "settings.json"), diagnostics), diagnostics);
+        var loader = new LoadDataService(new DADDataRepository());
+        var viewModel = new MainViewModel(loader, diagnostics);
+        var window = new MainWindow(viewModel, new FileExportService(), new JsonUserStateStore(Path.Combine(directory, "settings.json"), diagnostics), diagnostics, loader);
         MainWindow = window;
         window.Show();
         await window.RestoreSessionAsync(e.Args.Length == 1 ? e.Args[0] : null);

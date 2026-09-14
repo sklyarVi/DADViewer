@@ -10,16 +10,17 @@ namespace DADViewer.Presentation;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
+    private readonly ILoadDataService? _analysisLoader;
     private CancellationTokenSource? _rendering;
     private bool _closed;
     private DADViewer.Domain.DADData? _surfaceData;
     private ColorScale? _surfaceScale;
     public Task RenderingTask { get; private set; } = Task.CompletedTask;
-    public MainWindow(MainViewModel viewModel, IFileExportService? exports = null, IUserStateStore? stateStore = null, IDiagnostics? diagnostics = null)
+    public MainWindow(MainViewModel viewModel, IFileExportService? exports = null, IUserStateStore? stateStore = null, IDiagnostics? diagnostics = null, ILoadDataService? analysisLoader = null)
     {
         InitializeComponent();
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag);
-        _exports = exports; _stateStore = stateStore; _diagnostics = diagnostics;
+        _analysisLoader = analysisLoader; _exports = exports; _stateStore = stateStore; _diagnostics = diagnostics;
         _viewModel = viewModel; DataContext = viewModel;
         MapView.ViewportChanged += (_, _) => StartRendering();
         SchemeSelector.ItemsSource = Enum.GetValues<ColorScheme>();
@@ -37,6 +38,12 @@ public partial class MainWindow : Window
     {
         if (_viewModel.IsBusy) return;
         if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } files) await LoadFileAsync(files[0]);
+    }
+    private void Analyze_Click(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.Data is not { } data || _analysisLoader == null) return;
+        var window = new AnalysisWindow(_analysisLoader, data, _viewModel.FilePath, _viewModel.TimeIndex, _viewModel.WavelengthIndex, _exports, _diagnostics) { Owner = this };
+        window.ShowDialog();
     }
     private void Cancel_Click(object sender, RoutedEventArgs e) => _viewModel.CancelLoading();
     private void Apply_Click(object sender, RoutedEventArgs e) => StartRendering();

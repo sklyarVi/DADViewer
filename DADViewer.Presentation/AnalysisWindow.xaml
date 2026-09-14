@@ -1,0 +1,58 @@
+<Window x:Class="DADViewer.Presentation.AnalysisWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:views="clr-namespace:DADViewer.Presentation.Views"
+ Title="DAD Viewer · Peak analysis and comparison" Width="1180" Height="840" MinWidth="920" MinHeight="700"
+ Icon="/DADViewer.Presentation;component/Assets/DADViewer.ico" Background="#F2F5F8">
+ <Window.Resources>
+  <Style TargetType="Button"><Setter Property="Padding" Value="12,6"/><Setter Property="Margin" Value="0,0,8,0"/></Style>
+  <Style TargetType="TextBox"><Setter Property="Padding" Value="6,4"/><Setter Property="Margin" Value="0,3,12,0"/></Style>
+ </Window.Resources>
+ <DockPanel Margin="16" Background="#F2F5F8">
+  <StackPanel DockPanel.Dock="Top">
+   <TextBlock Text="Peak analysis and comparison" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,8"/>
+   <TextBlock x:Name="SourceLabel" TextWrapping="Wrap" Margin="0,0,0,10"/>
+   <StackPanel x:Name="InputPanel">
+    <WrapPanel Margin="0,0,0,10">
+     <Button Content="Open reference DAD…" Click="Reference_Click"/>
+     <Button Content="Remove reference" Click="RemoveReference_Click"/>
+     <Button Content="Reset zoom" Click="Reset_Click"/>
+    </WrapPanel>
+    <WrapPanel Margin="0,0,0,12">
+     <StackPanel Width="160"><TextBlock Text="Primary slice"/><ComboBox x:Name="Mode" SelectedIndex="0" SelectionChanged="Mode_Changed" Margin="0,3,12,0" Padding="4"><ComboBoxItem Content="Chromatogram"/><ComboBoxItem Content="Spectrum"/></ComboBox></StackPanel>
+     <StackPanel Width="150"><TextBlock x:Name="CoordinateLabel" Text="Wavelength (nm)"/><TextBox x:Name="Coordinate" TextChanged="Input_Changed"/></StackPanel>
+     <StackPanel Width="180"><TextBlock Text="Baseline"/><ComboBox x:Name="Baseline" SelectedIndex="0" SelectionChanged="Parameter_Changed" Margin="0,3,12,0" Padding="4"><ComboBoxItem Content="Line through endpoints"/><ComboBoxItem Content="Zero"/></ComboBox></StackPanel>
+     <StackPanel Width="150"><TextBlock Text="Min. local prominence"/><TextBox x:Name="Prominence" Text="0" TextChanged="Input_Changed" ToolTip="Intensity units; peak height above the higher of its two adjacent valleys."/></StackPanel>
+     <StackPanel Width="150"><TextBlock x:Name="DistanceLabel" Text="Min. distance (min)"/><TextBox x:Name="Distance" Text="0" TextChanged="Input_Changed"/></StackPanel>
+     <CheckBox x:Name="Negative" Content="Negative peaks" VerticalAlignment="Bottom" Margin="0,0,14,7" Checked="Parameter_Changed" Unchecked="Parameter_Changed"/>
+     <Button Content="Analyze" Click="Analyze_Click" VerticalAlignment="Bottom"/>
+    </WrapPanel>
+   </StackPanel>
+   <TextBlock x:Name="ReferenceLabel" Text="Blue: primary · Orange: reference · Dashed gray: baseline · Teal: detected peaks" TextWrapping="Wrap" Margin="0,0,0,6"/>
+   <TextBlock x:Name="Metrics" TextWrapping="Wrap" Margin="0,0,0,10" FontWeight="SemiBold"/>
+  </StackPanel>
+  <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+   <WrapPanel Margin="0,0,0,10"><Button x:Name="ExportPeaks" Content="Export peaks CSV…" IsEnabled="False" Click="ExportPeaks_Click"/><Button x:Name="ExportComparison" Content="Export comparison CSV…" IsEnabled="False" Click="ExportComparison_Click"/></WrapPanel>
+   <TextBlock Text="Height: above the chosen baseline (magnitude for negative peaks). Area: signed integral of the corrected peak between adjacent valleys; no deconvolution. Width: at half height, blank if unresolved. Peaks at the two endpoints are excluded." TextWrapping="Wrap" Foreground="DimGray"/>
+   <TextBlock x:Name="UnitsLabel" TextWrapping="Wrap" Foreground="DimGray" Margin="0,4,0,0"/>
+   <TextBlock x:Name="Status" TextWrapping="Wrap" Margin="0,8,0,0"/>
+  </StackPanel>
+  <Grid>
+   <Grid.RowDefinitions><RowDefinition Height="3*" MinHeight="150"/><RowDefinition Height="8"/><RowDefinition Height="2*" MinHeight="100"/></Grid.RowDefinitions>
+   <views:SlicePlot x:Name="Plot"/>
+   <GridSplitter Grid.Row="1" Height="8" HorizontalAlignment="Stretch"/>
+   <DataGrid x:Name="Peaks" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="Peak_Selected" EnableRowVirtualization="True" CanUserAddRows="False" HeadersVisibility="Column">
+    <DataGrid.Columns>
+     <DataGridTextColumn Header="Position" Binding="{Binding Position,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Raw intensity" Binding="{Binding RawValue,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Height" Binding="{Binding Height,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Local prominence" Binding="{Binding LocalProminence,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Left" Binding="{Binding Left,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Right" Binding="{Binding Right,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Signed area" Binding="{Binding Area,StringFormat=G6}" Width="*"/>
+     <DataGridTextColumn Header="Half-height width" Binding="{Binding HalfHeightWidth,StringFormat=G6}" Width="*"/>
+    </DataGrid.Columns>
+   </DataGrid>
+  </Grid>
+ </DockPanel>
+</Window>

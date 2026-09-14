@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="DAD Viewer: chromatographic curves">
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="#14283F"/>
+  <path d="M 42,184 L 58,184 C 78,184 80,128 97,128 C 113,128 113,184 135,184 L 214,184" fill="none" stroke="#A99BFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 42,170 L 83,170 C 104,170 105,66 127,66 C 150,66 149,170 171,170 L 214,170" fill="none" stroke="#50E2C2" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

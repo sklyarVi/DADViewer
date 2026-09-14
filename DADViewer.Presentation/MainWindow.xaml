@@ -2,7 +2,7 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:views="clr-namespace:DADViewer.Presentation.Views"
- Title="DAD Viewer 0.2.1" Width="1280" Height="880" MinWidth="950" MinHeight="680"
+ Icon="/DADViewer.Presentation;component/Assets/DADViewer.ico" Title="DAD Viewer 0.3.0" Width="1280" Height="880" MinWidth="950" MinHeight="680"
  Background="#F2F5F8" AllowDrop="True" Drop="Window_Drop">
  <Window.Resources>
   <BooleanToVisibilityConverter x:Key="BoolVisibility"/>
@@ -14,6 +14,7 @@
    <DockPanel Margin="0,0,0,12">
     <TextBlock Text="DAD Viewer" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,24,0"/>
     <Button Content="Open DAD…" Click="Open_Click" IsEnabled="{Binding CanOpen}" AutomationProperties.AutomationId="OpenFile"/>
+    <Button Content="Analyze / Compare…" Click="Analyze_Click" IsEnabled="{Binding HasData}"/>
     <Button Content="Recent…" Click="Recent_Click" IsEnabled="{Binding CanOpen}"/>
     <Button Content="Cancel loading" Click="Cancel_Click" IsEnabled="{Binding IsBusy}"/>
     <TextBlock Text="{Binding FileName}" VerticalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>

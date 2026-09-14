@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF>
     <EnableDefaultItems>false</EnableDefaultItems>
     <AssemblyName>DADViewer</AssemblyName>
+    <ApplicationIcon>assets/DADViewer.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
