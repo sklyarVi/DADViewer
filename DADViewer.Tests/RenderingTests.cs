@@ -129,19 +129,39 @@ public sealed class RenderingTests
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
         {
-            var dispatcher = Dispatcher.CurrentDispatcher;
-            dispatcher.UnhandledException += (_, e) => { e.Handled = true; completion.TrySetException(e.Exception); dispatcher.BeginInvokeShutdown(DispatcherPriority.Send); };
-            SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(dispatcher));
-            dispatcher.BeginInvoke(new Action(async () =>
+            Exception? failure = null;
+            try
             {
-                try { await action(); completion.TrySetResult(); }
-                catch (Exception ex) { completion.TrySetException(ex); }
-                finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
-            }));
-            Dispatcher.Run();
-        })
-        { IsBackground = true };
+                var dispatcher = Dispatcher.CurrentDispatcher;
+                dispatcher.UnhandledException += (_, e) =>
+                {
+                    e.Handled = true; failure ??= e.Exception;
+                    dispatcher.BeginInvokeShutdown(DispatcherPriority.Send);
+                };
+                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(dispatcher));
+                dispatcher.BeginInvoke(new Action(async () =>
+                {
+                    try { await action(); }
+                    catch (Exception ex) { failure ??= ex; }
+                    finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
+                }));
+                Dispatcher.Run();
+            }
+            catch (Exception ex) { failure ??= ex; }
+            finally
+            {
+                // A test is complete only after its dispatcher has stopped.
+                // Otherwise the next test can race native WPF thread teardown.
+                if (failure is null) completion.TrySetResult();
+                else completion.TrySetException(failure);
+            }
+        }) { IsBackground = true };
         thread.SetApartmentState(ApartmentState.STA); thread.Start();
-        await completion.Task.WaitAsync(TimeSpan.FromSeconds(45));
+        try { await completion.Task.WaitAsync(TimeSpan.FromSeconds(45)); }
+        finally
+        {
+            if (!thread.Join(TimeSpan.FromSeconds(5)))
+                throw new TimeoutException("WPF test thread did not shut down.");
+        }
     }
 }
