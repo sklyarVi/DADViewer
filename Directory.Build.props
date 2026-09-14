@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <Version>0.2.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AnalysisLevel>latest</AnalysisLevel>

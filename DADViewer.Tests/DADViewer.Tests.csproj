@@ -7,5 +7,5 @@
   <ProjectReference Include="../DADViewer.Presentation/DADViewer.Presentation.csproj" />
   <ProjectReference Include="../DADViewer.Infrastructure/DADViewer.Infrastructure.csproj" />
  </ItemGroup>
- <ItemGroup><None Include="../SampleTestData/*.DAD" Link="SampleTestData/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+ <ItemGroup><Compile Include="../SampleTestData/SyntheticSamples.cs" Link="Samples/SyntheticSamples.cs" /></ItemGroup>
 </Project>

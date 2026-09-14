@@ -19,7 +19,7 @@ public sealed class DataTests : IDisposable
     [InlineData("TestData1.DAD", 4869)]
     [InlineData("TestData2.DAD", 3294)]
     [InlineData("TestData3.DAD", 4494)]
-    public void ReadsRealSamples(string file, int spectra)
+    public void ReadsSyntheticSamples(string file, int spectra)
     {
         var data = new DADDataRepository().LoadFromFile(Path.Combine(AppContext.BaseDirectory, "SampleTestData", file));
         Assert.Equal(spectra, data.NSpect); Assert.Equal(106, data.NWaves);

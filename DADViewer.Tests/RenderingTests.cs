@@ -44,7 +44,7 @@ public sealed class RenderingTests
         Assert.All(mesh.Positions, p => Assert.True(double.IsFinite(p.X) && double.IsFinite(p.Y) && double.IsFinite(p.Z)));
     }
     [Fact]
-    public Task WindowRendersRealDataAndReloadsWithoutStaleSelection() => OnSta(async () =>
+    public Task WindowRendersSyntheticDataAndReloadsWithoutStaleSelection() => OnSta(async () =>
     {
         using var vm = new MainViewModel(new LoadDataService(new DADDataRepository()));
         var window = new MainWindow(vm) { ShowActivated = false, ShowInTaskbar = false, WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000 };

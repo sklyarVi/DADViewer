@@ -10,11 +10,12 @@ $directory = Join-Path $repo ('artifacts/release-smoke-' + [Guid]::NewGuid().ToS
 Expand-Archive -LiteralPath $archivePath -DestinationPath $directory
 $exe = Get-ChildItem -LiteralPath $directory -Recurse -Filter DADViewer.exe | Select-Object -First 1
 if (!$exe) { throw 'Executable not found in archive.' }
-foreach ($name in @('coreclr.dll', 'PresentationFramework.dll', 'ThirdPartyNotices.txt', 'START-HERE.txt')) {
+foreach ($name in @('coreclr.dll', 'PresentationFramework.dll', 'ThirdPartyNotices.txt', 'LICENSE', 'START-HERE.txt')) {
     if (!(Test-Path -LiteralPath (Join-Path $exe.DirectoryName $name))) { throw "Required portable file missing: $name" }
 }
+& (Join-Path $PSScriptRoot 'GenerateSamples.ps1') -OutputDirectory (Join-Path $directory 'samples')
 foreach ($number in 1..3) {
-    $sample = Join-Path $repo "SampleTestData/TestData$number.DAD"
+    $sample = Join-Path $directory "samples/TestData$number.DAD"
     $profile = Join-Path $directory "profile-$number"
     $process = Start-Process -FilePath $exe.FullName -ArgumentList ('"' + $sample + '"') -WindowStyle Hidden -PassThru -Environment @{ DADVIEWER_DATA_DIRECTORY = $profile }
     try {

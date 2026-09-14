@@ -14,3 +14,18 @@ TestResults/
 artifacts/
 *.log
 /README.md
+# Local configuration, signing credentials and temporary files
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pfx
+*.p12
+*.key
+*.tmp
+*.bak
+*.orig
+.DS_Store
+Thumbs.db
+# Generated examples; original assignment data is preserved only in ignored docs/
+/SampleTestData/*.DAD

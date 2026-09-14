@@ -5,6 +5,7 @@
     <AssemblyName>DADViewer</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="ThirdPartyNotices.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <ApplicationDefinition Include="DADViewer/App.xaml" />
     <Compile Include="DADViewer/App.xaml.cs" />
