@@ -13,7 +13,6 @@ riderModule.iml
 TestResults/
 artifacts/
 *.log
-/README.md
 # Local configuration, signing credentials and temporary files
 .env
 .env.*
