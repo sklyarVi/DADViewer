@@ -10,11 +10,13 @@ public sealed class DADData
     public IReadOnlyList<double> Wavelengths { get; }
     public int NSpect => _times.Length;
     public int NWaves => _waves.Length;
+    public DataMetadata Metadata { get; }
     public double MinIntensity { get; }
     public double MaxIntensity { get; }
 
-    public DADData(double[] times, double[] waves, double[,] intensities, CancellationToken cancellationToken = default)
+    public DADData(double[] times, double[] waves, double[,] intensities, CancellationToken cancellationToken = default, DataMetadata? metadata = null)
     {
+        Metadata = metadata ?? new();
         ArgumentNullException.ThrowIfNull(times);
         ArgumentNullException.ThrowIfNull(waves);
         ArgumentNullException.ThrowIfNull(intensities);

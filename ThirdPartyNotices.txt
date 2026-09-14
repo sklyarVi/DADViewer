@@ -19,3 +19,8 @@ Sample data
 The public sample generator and its synthetic output are covered by the project
 MIT license. Measured files originally provided with the programming assignment
 are not part of this source snapshot or covered by this license grant.
+
+Vendor format interoperability:
+The import readers use documented file-layout facts; no external parser library is bundled.
+Reference documentation: https://rainbow-api.readthedocs.io/ and https://ethanbass.github.io/chromConverter/ .
+Public validation datasets from rainbow and chromConverterExtraTests are used locally only and are not distributed with DADViewer.

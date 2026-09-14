@@ -14,7 +14,8 @@
    <TextBlock x:Name="SourceLabel" TextWrapping="Wrap" Margin="0,0,0,10"/>
    <StackPanel x:Name="InputPanel">
     <WrapPanel Margin="0,0,0,10">
-     <Button Content="Open reference DAD…" Click="Reference_Click"/>
+     <Button Content="Open reference…" Click="Reference_Click"/>
+     <Button Content="Reference folder…" Click="ReferenceFolder_Click"/>
      <Button Content="Remove reference" Click="RemoveReference_Click"/>
      <Button Content="Reset zoom" Click="Reset_Click"/>
     </WrapPanel>

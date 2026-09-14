@@ -31,8 +31,13 @@ public partial class MainWindow : Window
     }
     private async void Open_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = "DAD files (*.dad)|*.dad|All files (*.*)|*.*", CheckFileExists = true };
+        var dialog = new OpenFileDialog { Filter = ImportDialogs.Filter, CheckFileExists = true };
         if (dialog.ShowDialog(this) == true) await LoadFileAsync(dialog.FileName);
+    }
+    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFolderDialog { Title = "Open Agilent .D or Waters .raw folder" };
+        if (dialog.ShowDialog(this) == true) await LoadFileAsync(dialog.FolderName);
     }
     private async void Window_Drop(object sender, DragEventArgs e)
     {

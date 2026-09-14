@@ -48,7 +48,7 @@ public partial class MainWindow
         {
             PlotSurface plot = choice == 2 ? MapView : choice == 3 ? Chromatogram : Spectrum;
             if (choice == 2 && (!MapView.IsCurrentImage || MapView.RenderedScale != scale)) throw new InvalidOperationException("The map has not finished rendering. Apply a valid scale and try again.");
-            string caption = $"Source: {_viewModel.FileName}\n{_viewModel.Selection}\nIntensity: file units; color scale: {scale.Minimum:G6} … {scale.Maximum:G6}; {scale.Scheme}, {scale.Steps} colors\nVisible range: {plot.VisibleRangeDescription}";
+            string caption = $"Source: {_viewModel.FileName}\n{_viewModel.Selection}\nIntensity: {data.Metadata.IntensityUnit}; format: {data.Metadata.Format}; color scale: {scale.Minimum:G6} … {scale.Maximum:G6}; {scale.Scheme}, {scale.Steps} colors\nVisible range: {plot.VisibleRangeDescription}";
             var bytes = PngExport.Capture(plot, caption, scale);
             await _exports.SaveAsync(path, stream => stream.Write(bytes));
         }

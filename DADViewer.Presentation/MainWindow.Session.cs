@@ -36,7 +36,7 @@ public partial class MainWindow
         {
             var info = new FileInfo(_viewModel.FilePath);
             _loadedLength = info.Length; _loadedWriteTicks = info.LastWriteTimeUtc.Ticks;
-            var saved = _state.Files.FirstOrDefault(f => string.Equals(f.Path, info.FullName, StringComparison.OrdinalIgnoreCase) && f.Length == info.Length && f.LastWriteUtcTicks == info.LastWriteTimeUtc.Ticks);
+            var saved = _state.Files.FirstOrDefault(f => string.Equals(f.Path, info.FullName, StringComparison.OrdinalIgnoreCase) && f.Length == info.Length && f.LastWriteUtcTicks == info.LastWriteTimeUtc.Ticks && f.SourceFingerprint == _viewModel.Data!.Metadata.Fingerprint);
             if (saved != null)
             {
                 _viewModel.Select(saved.TimeIndex, saved.WavelengthIndex);
@@ -64,7 +64,7 @@ public partial class MainWindow
             static double[] Values(PlotSurface plot) => [plot.Viewport.X, plot.Viewport.Y, plot.Viewport.Width, plot.Viewport.Height];
             _state.Files.RemoveAll(f => string.Equals(f.Path, info.FullName, StringComparison.OrdinalIgnoreCase));
             _state.Files.Insert(0, new FileState { Path = info.FullName, Length = _loadedLength, LastWriteUtcTicks = _loadedWriteTicks,
-                TimeIndex = _viewModel.TimeIndex, WavelengthIndex = _viewModel.WavelengthIndex, ColorMinimum = scale.Minimum, ColorMaximum = scale.Maximum,
+                SourceFingerprint = _viewModel.Data.Metadata.Fingerprint, TimeIndex = _viewModel.TimeIndex, WavelengthIndex = _viewModel.WavelengthIndex, ColorMinimum = scale.Minimum, ColorMaximum = scale.Maximum,
                 Show3D = _viewModel.Show3D, MapViewport = Values(MapView), ChromatogramViewport = Values(Chromatogram), SpectrumViewport = Values(Spectrum) });
             _state.Files = _state.Files.Take(10).ToList();
             _state.LastFile = info.FullName;

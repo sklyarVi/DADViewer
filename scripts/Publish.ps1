@@ -33,9 +33,26 @@ $requirements = if ($FrameworkDependent) { '.NET 10 Desktop Runtime x64 must be 
 DAD Viewer $version for Windows x64
 
 Extract the entire folder and run DADViewer.exe. $requirements
-Open a DAD file with Open DAD, drag and drop, or a command-line path.
-Time is in minutes and wavelength in nm, according to the original task.
-Intensity units are not specified. Input data is never modified.
+Use Open data, drag and drop, or a command-line path. Folder opens Agilent .D or Waters .raw datasets.
+Time is normalized to minutes and wavelength is in nm. Absorbance units are shown in the interface.
+Input data is never modified.
+
+Supported imports:
+- Original assignment DAD binary layout (legacy behavior retained).
+- Agilent ChemStation UV versions 31/131 (LC delta encoding).
+- Agilent OpenLab UV 131 (OL double encoding).
+- Unfinalized Agilent UV headers: complete spectra recovered with a warning.
+- Waters MassLynx PDA: type-12 function, six-byte DAT + IDX + _FUNCTNS.INF.
+- Waters Empower full 3D PDA export (.arw).
+- Thermo Chromeleon UV spectral-field ASCII export (.txt).
+Native Chromeleon binary .dad/.cmbx is NOT supported; export the spectral field
+as ASCII text. Single-channel traces, MS data and changing spectral grids are
+not supported. Select a specific UV/DAT file if a folder has multiple spectra.
+Keep the Waters .raw folder together, including its IDX and INF files.
+AU/uAU imports are normalized to mAU. Waters MassLynx keeps its native raw
+absorbance values: physical scaling is unconfirmed. Unlike units cannot be
+compared or overlaid as equal measurements. Assignment DAD retains file units.
+CSV/PNG exports identify units and format. Filenames include the .D/.raw folder.
 
 Click a plot to select a point. Wheel zooms; right/middle drag pans.
 Shift + left drag selects a zoom area; double click resets one plot.

@@ -28,7 +28,7 @@ public partial class AnalysisWindow : Window
         _initialTime = data.TimeStamps[timeIndex]; _initialWave = data.Wavelengths[wavelengthIndex];
         InitializeComponent();
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
-        SourceLabel.Text = $"Primary: {Path.GetFileName(source)} · snapshot of the open file";
+        SourceLabel.Text = $"Primary: {DataSourceName.Short(source)} · {_data.Metadata.Format} · snapshot of the open file";
         Coordinate.Text = _initialWave.ToString("R", CultureInfo.CurrentCulture);
         var initial = data.GetChromatogram(wavelengthIndex);
         Prominence.Text = ((initial.Max() - initial.Min()) * 0.03).ToString("G6", CultureInfo.CurrentCulture);
@@ -73,12 +73,12 @@ public partial class AnalysisWindow : Window
         _token.ThrowIfCancellationRequested();
         Result = result; Peaks.ItemsSource = result.Peaks.Peaks;
         ShowCurve(result, -1);
-        UnitsLabel.Text = $"Position / width: {result.AxisUnit} · Height / prominence: file intensity units · Area: file intensity units × {result.AxisUnit}. Analysis uses the full slice, regardless of zoom.";
-        ReferenceLabel.Text = $"Blue: primary at {result.Coordinate:G6} {result.FixedUnit}" + (result.ReferenceCoordinate is { } coordinate ? $" · Orange: {Path.GetFileName(_referenceSource)} at {coordinate:G6} {result.FixedUnit} (nearest measured slice)" : "") + " · Gray: baseline · Teal: peaks";
+        UnitsLabel.Text = $"Position / width: {result.AxisUnit} · Height / prominence: {_data.Metadata.IntensityUnit} · Area: {_data.Metadata.IntensityUnit} × {result.AxisUnit}. Analysis uses the full slice, regardless of zoom.";
+        ReferenceLabel.Text = $"Blue: primary at {result.Coordinate:G6} {result.FixedUnit}" + (result.ReferenceCoordinate is { } coordinate ? $" · Orange: {DataSourceName.Short(_referenceSource)} at {coordinate:G6} {result.FixedUnit} (nearest measured slice)" : "") + " · Gray: baseline · Teal: peaks";
         Metrics.Text = result.Comparison is { } comparison
             ? comparison.Points.Count == 0 ? "No primary sample points in the shared axis range. Comparison metrics unavailable."
-            : $"Comparison: {comparison.Points.Count:N0} primary points · MAE {comparison.MeanAbsoluteError:G6} · RMSE {comparison.RootMeanSquareError:G6} (file units). Reference interpolated within overlap; no shift or normalization."
-            : _reference != null ? "Reference does not cover this slice coordinate. Choose a coordinate within both files to compare." : "Open a reference file to overlay and compare the same slice.";
+            : $"Comparison: {comparison.Points.Count:N0} primary points · MAE {comparison.MeanAbsoluteError:G6} · RMSE {comparison.RootMeanSquareError:G6} ({_data.Metadata.IntensityUnit}). Reference interpolated within overlap; no shift or normalization."
+            : result.ComparisonUnavailableReason ?? (_reference != null ? "Reference does not cover this slice coordinate. Choose a coordinate within both files to compare." : "Open a reference file to overlay and compare the same slice.");
         Status.Text = $"{result.Peaks.Peaks.Count} primary peaks shown" + (result.Peaks.DetectedCount > result.Peaks.Peaks.Count ? $" of {result.Peaks.DetectedCount}; strongest {request.Options.MaximumPeaks} retained" : "") + ". Select a row to highlight its peak.";
     }
     private void ShowCurve(AnalysisSnapshot result, int selected)
@@ -91,7 +91,7 @@ public partial class AnalysisWindow : Window
         Status.Text = "Loading reference…";
         var data = await _loader.LoadAsync(path, _token);
         _token.ThrowIfCancellationRequested();
-        _reference = data; _referenceSource = path; Plot.ResetZoom();
+        _reference = data; _referenceSource = data.Metadata.ResolvedPath ?? path; Plot.ResetZoom();
         await AnalyzeCoreAsync();
     });
     private async Task RunAsync(Func<Task> action)
@@ -115,8 +115,13 @@ public partial class AnalysisWindow : Window
     private void Analyze_Click(object sender, RoutedEventArgs e) => AnalysisTask = AnalyzeAsync();
     private async void Reference_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = "DAD files (*.dad)|*.dad", CheckFileExists = true };
+        var dialog = new OpenFileDialog { Filter = ImportDialogs.Filter, CheckFileExists = true };
         if (dialog.ShowDialog(this) == true) { AnalysisTask = LoadReferenceAsync(dialog.FileName); await AnalysisTask; }
+    }
+    private async void ReferenceFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFolderDialog { Title = "Open Agilent .D or Waters .raw reference folder" };
+        if (dialog.ShowDialog(this) == true) { AnalysisTask = LoadReferenceAsync(dialog.FolderName); await AnalysisTask; }
     }
     private void RemoveReference_Click(object sender, RoutedEventArgs e)
     { _reference = null; _referenceSource = ""; Plot.ResetZoom(); AnalysisTask = AnalyzeAsync(); }

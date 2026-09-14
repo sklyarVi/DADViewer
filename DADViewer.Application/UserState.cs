@@ -22,6 +22,7 @@ public sealed class UserState
 public sealed class FileState
 {
     public string Path { get; set; } = "";
+    public string SourceFingerprint { get; set; } = "";
     public long Length { get; set; }
     public long LastWriteUtcTicks { get; set; }
     public int TimeIndex { get; set; }

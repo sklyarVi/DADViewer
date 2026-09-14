@@ -11,7 +11,7 @@ public sealed class MainViewModel(ILoadDataService loader, IDiagnostics? diagnos
     private DADData? _data;
     private int _time, _wave;
     private bool _busy, _show3D;
-    private string _status = "Open a DAD file to begin.", _fileName = "";
+    private string _status = "Open a data file or an Agilent / Waters folder to begin.", _fileName = "";
     private double _progress, _minimum, _maximum;
     private int _steps = 32;
     private ColorScheme _scheme = ColorScheme.Viridis;
@@ -26,8 +26,8 @@ public sealed class MainViewModel(ILoadDataService loader, IDiagnostics? diagnos
     public int MaxWavelengthIndex => (_data?.NWaves ?? 1) - 1;
     public int TimeIndex { get => _time; set => Select(value, _wave); }
     public int WavelengthIndex { get => _wave; set => Select(_time, value); }
-    public string Selection => _data == null ? "" : $"Time: {_data.TimeStamps[_time]:G6} min  |  Wavelength: {_data.Wavelengths[_wave]:G6} nm  |  Intensity: {_data.GetIntensity(_time, _wave):G6}";
-    public string Summary => _data == null ? "" : $"{_data.NSpect:N0} spectra × {_data.NWaves:N0} wavelengths  |  Signal: {_data.MinIntensity:G6} … {_data.MaxIntensity:G6}";
+    public string Selection => _data == null ? "" : $"Time: {_data.TimeStamps[_time]:G6} min  |  Wavelength: {_data.Wavelengths[_wave]:G6} nm  |  Intensity: {_data.GetIntensity(_time, _wave):G6} {_data.Metadata.IntensityUnit}";
+    public string Summary => _data == null ? "" : $"{_data.NSpect:N0} spectra × {_data.NWaves:N0} wavelengths  |  Signal: {_data.MinIntensity:G6} … {_data.MaxIntensity:G6} {_data.Metadata.IntensityUnit}  |  {_data.Metadata.Format}";
     public int ColorSteps { get => _steps; set { value = Math.Clamp(value, 2, 256); if (_steps == value) return; _steps = value; OnPropertyChanged(); } }
     public ColorScheme Scheme { get => _scheme; set { if (_scheme == value) return; _scheme = value; OnPropertyChanged(); } }
     public double ColorMinimum { get => _minimum; set { _minimum = value; OnPropertyChanged(); } }
@@ -60,9 +60,9 @@ public sealed class MainViewModel(ILoadDataService loader, IDiagnostics? diagnos
             var progress = new Progress<double>(value => { if (ReferenceEquals(_loading, cts)) Progress = value; });
             var loaded = await loader.LoadAsync(path, cts.Token, progress);
             cts.Token.ThrowIfCancellationRequested();
-            FilePath = Path.GetFullPath(path); _data = loaded; _fileName = Path.GetFileName(path); _time = 0; _wave = 0;
+            FilePath = loaded.Metadata.ResolvedPath ?? Path.GetFullPath(path); _data = loaded; _fileName = DataSourceName.Short(FilePath); _time = 0; _wave = 0;
             _minimum = loaded.MinIntensity; _maximum = loaded.MaxIntensity;
-            Status = "File loaded.";
+            Status = string.IsNullOrEmpty(loaded.Metadata.Detail) ? "File loaded." : "File loaded. " + loaded.Metadata.Detail;
             foreach (string name in new[] { nameof(Data), nameof(HasData), nameof(FileName), nameof(MaxTimeIndex), nameof(MaxWavelengthIndex), nameof(TimeIndex), nameof(WavelengthIndex), nameof(Selection), nameof(Summary), nameof(ColorMinimum), nameof(ColorMaximum) }) OnPropertyChanged(name);
         }
         catch (OperationCanceledException) { Status = "Loading cancelled. Previous data retained."; }
